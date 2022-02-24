@@ -9,10 +9,14 @@ public class TurnManager : MonoBehaviour
     public Unit[] units;
 
 
+    // is an index of a unit in the units list
     public int currentSelectedUnit;
+
+    // 0 for player 1 for enemy
     public int currentPlayer;
 
     public bool moving;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,11 +29,15 @@ public class TurnManager : MonoBehaviour
     void Update()
     {
     }
+
+    // Called to start game
     public void StartGame()
     {
         // Set new unit to selected
         units[currentSelectedUnit].SetActive();
     }
+
+    // Mostly checking for new unit to select and set it active
     public void OnNextTurn()
     {
         // Deselect old unit
@@ -40,6 +48,7 @@ public class TurnManager : MonoBehaviour
         bool hasPlayer1 = true;
         for (int i = 0; i < units.Length; i++)
         {
+            // Check that at least one instance of player and enemies head unit is alive
             if (units[i].player == 0 && units[i].GetComponent<HeadUnit>() != null)
             {
                 hasPlayer0 = true;
@@ -92,6 +101,7 @@ public class TurnManager : MonoBehaviour
     }
 
 
+    // Called by lock move button
     public void LockMove()
     {
 
@@ -100,6 +110,7 @@ public class TurnManager : MonoBehaviour
         OnNextTurn();
     }
 
+    // Called by switch mode button
     public void SwitchMode()
     {
         moving = !moving;
