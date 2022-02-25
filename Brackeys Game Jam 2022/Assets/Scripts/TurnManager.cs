@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class TurnManager : MonoBehaviour
 {
+    public bool devBuild;
     public static TurnManager tm;
     public Unit[] units;
 
@@ -60,7 +61,7 @@ public class TurnManager : MonoBehaviour
         }
 
         // End game if player is dead
-        if (!hasPlayer0 || !hasPlayer1)
+        if (!devBuild && !hasPlayer0 || !hasPlayer1)
         {
             EndGame();
             return;

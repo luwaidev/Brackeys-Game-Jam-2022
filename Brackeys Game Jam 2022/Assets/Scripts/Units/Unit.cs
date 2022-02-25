@@ -10,20 +10,27 @@ public abstract class Unit : MonoBehaviour
     public MoveTileController currentSelectedMove;
     public int player;
 
+    public bool moved;
+
     [Header("Combat Settings")]
 
     public Transform attackHitbox;
     public int attackDamage;
     public int health;
 
+
+
     // Called by TurnManager
     public virtual void SetActive()
     {
         currentSelectedMove = null;
         selected = true;
+        moved = false;
+
         for (int i = 0; i < tiles.Length; i++)
         {
             tiles[i].gameObject.SetActive(tiles[i].moveTile && CheckTileValid(tiles[i]));
+            // print(i + ", " + tiles[i].moveTile);
         }
 
         if (player == 1)
@@ -78,6 +85,11 @@ public abstract class Unit : MonoBehaviour
         }
     }
 
+    public virtual void MoveUnit()
+    {
+        Move();
+        moved = true;
+    }
     // Private
 
     // For now just checks if tile is not over another enemy or outside the map
@@ -85,7 +97,7 @@ public abstract class Unit : MonoBehaviour
     public virtual bool CheckTileValid(MoveTileController tile)
     {
         RaycastHit2D[] ray = Physics2D.RaycastAll(tile.transform.position, Vector2.zero);
-
+        print(ray.Length);
         for (int i = 0; i < ray.Length; i++)
         {
             if (ray[i].collider.tag == "Wall")
@@ -129,6 +141,13 @@ public abstract class Unit : MonoBehaviour
     {
         // Move to the tile selected's position
         transform.position = GridManager.grid.RoundToGrid(currentSelectedMove.transform.position);
+
+        // Reload active tiles
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            tiles[i].gameObject.SetActive(tiles[i].moveTile && CheckTileValid(tiles[i]));
+            // print(i + ", " + tiles[i].moveTile);
+        }
     }
 
 
