@@ -52,3 +52,6 @@ TagManager:
   - name: Unit
     uniqueID: 1219157947
     locked: 0
+  - name: Attacks
+    uniqueID: 2645102161
+    locked: 0

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class TurnManager : MonoBehaviour
@@ -15,8 +16,12 @@ public class TurnManager : MonoBehaviour
 
     // 0 for player 1 for enemy
     public int currentPlayer;
-
     public bool moving;
+    public float animationTime;
+
+    [Header("UI")]
+    public Image portrait;
+    public Image bottomLeftUI;
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +41,8 @@ public class TurnManager : MonoBehaviour
     {
         // Set new unit to selected
         units[currentSelectedUnit].SetActive();
+
+        UpdateUIElements();
     }
 
     // Mostly checking for new unit to select and set it active
@@ -99,6 +106,9 @@ public class TurnManager : MonoBehaviour
 
         // Set new unit to selected
         units[currentSelectedUnit].SetActive();
+
+        // Update UI Elements
+        UpdateUIElements();
     }
 
 
@@ -107,7 +117,13 @@ public class TurnManager : MonoBehaviour
     {
 
         Debug.Log("Locked Move");
+        StartCoroutine(LockCoroutine());
+    }
+
+    public IEnumerator LockCoroutine()
+    {
         units[currentSelectedUnit].LockMove();
+        yield return new WaitForSeconds(animationTime);
         OnNextTurn();
     }
 
@@ -117,6 +133,12 @@ public class TurnManager : MonoBehaviour
         moving = !moving;
 
         units[currentSelectedUnit].SetMode(moving);
+    }
+
+    public void UpdateUIElements()
+    {
+        portrait.sprite = units[currentSelectedUnit].portrait;
+        bottomLeftUI.sprite = units[currentSelectedUnit].bottomLeftUI;
     }
 
     private void EndGame()

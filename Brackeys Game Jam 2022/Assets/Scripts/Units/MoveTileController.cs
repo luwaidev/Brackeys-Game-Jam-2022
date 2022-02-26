@@ -54,18 +54,21 @@ public class MoveTileController : MonoBehaviour
     // Set current selected move in the parent Unit script to this
     public void Selected()
     {
-        Debug.Log("Selected");
+        // Debug.Log("Selected");
 
         if (!parent.moved && moveTile && parent.currentSelectedMove == this)
         {
+            Debug.Log("Move Unit");
             parent.MoveUnit();
         }
         else if (parent.moved)
         {
+            Debug.Log("Setting Unit Moved");
             parent.currentSelectedMove = moveTile ? null : this;
         }
         else if (!parent.moved)
         {
+            Debug.Log("Setting Unit Not Moved");
             parent.currentSelectedMove = this;
         }
     }

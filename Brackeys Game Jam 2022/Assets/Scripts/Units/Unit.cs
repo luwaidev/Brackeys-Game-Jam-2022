@@ -9,15 +9,23 @@ public abstract class Unit : MonoBehaviour
     public MoveTileController[] tiles;
     public MoveTileController currentSelectedMove;
     public int player;
-
     public bool moved;
 
     [Header("Combat Settings")]
+    public bool attack;
 
     public Transform attackHitbox;
     public int attackDamage;
     public int health;
+    public int maxHealth;
 
+    [Header("Animation Timing")]
+    public float moveTime;
+    public float moveSpeed;
+
+    [Header("UI Settings")]
+    public Sprite bottomLeftUI;
+    public Sprite portrait;
 
 
     // Called by TurnManager
@@ -36,6 +44,12 @@ public abstract class Unit : MonoBehaviour
         if (player == 1)
         {
             AIMove();
+        }
+
+        UpdateUnit();
+        if (attack)
+        {
+            Attack();
         }
     }
 
@@ -89,15 +103,19 @@ public abstract class Unit : MonoBehaviour
     {
         Move();
         moved = true;
+        TurnManager.tm.moving = false;
     }
     // Private
 
+    public virtual void UpdateUnit()
+    {
+
+    }
     // For now just checks if tile is not over another enemy or outside the map
     // Can be customized for every unit, maybe some can't fire over walls etc
     public virtual bool CheckTileValid(MoveTileController tile)
     {
         RaycastHit2D[] ray = Physics2D.RaycastAll(tile.transform.position, Vector2.zero);
-        print(ray.Length);
         for (int i = 0; i < ray.Length; i++)
         {
             if (ray[i].collider.tag == "Wall")
@@ -134,20 +152,44 @@ public abstract class Unit : MonoBehaviour
                 }
             }
         }
+
+
+        attack = false;
     }
 
     // Called when locking move
     public virtual void Move()
     {
-        // Move to the tile selected's position
-        transform.position = GridManager.grid.RoundToGrid(currentSelectedMove.transform.position);
+        Debug.Log("Move");
+        StartCoroutine(MoveRoutine());
 
-        // Reload active tiles
+    }
+
+    IEnumerator MoveRoutine()
+    {
+        Vector2 targetPosition = GridManager.grid.RoundToGrid(currentSelectedMove.transform.position);
+
+        // Set tiles to false
         for (int i = 0; i < tiles.Length; i++)
         {
-            tiles[i].gameObject.SetActive(tiles[i].moveTile && CheckTileValid(tiles[i]));
-            // print(i + ", " + tiles[i].moveTile);
+            tiles[i].gameObject.SetActive(false);
         }
+
+        for (int i = 0; i < moveTime; i++)
+        {
+
+            // Move to the tile selected's position
+            transform.position = Vector2.Lerp(transform.position, targetPosition, moveSpeed);
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        // Move to the tile selected's position
+        transform.position = targetPosition;
+
+        currentSelectedMove = null;
+
+
+        SetMode(false);
     }
 
 
