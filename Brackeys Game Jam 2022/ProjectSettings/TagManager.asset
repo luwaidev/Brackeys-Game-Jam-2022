@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Unit
   - Wall
+  - Attack Feedback
   layers:
   - Default
   - TransparentFX
@@ -54,4 +55,10 @@ TagManager:
     locked: 0
   - name: Attacks
     uniqueID: 2645102161
+    locked: 0
+  - name: Hack
+    uniqueID: 2946849053
+    locked: 0
+  - name: UI
+    uniqueID: 1335584729
     locked: 0

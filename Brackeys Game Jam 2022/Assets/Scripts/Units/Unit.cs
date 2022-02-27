@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MoreMountains.Feedbacks;
 
 // This class can be inherited from by any Unit, and the code can be overriden for custom functionality
 public abstract class Unit : MonoBehaviour
@@ -8,6 +9,10 @@ public abstract class Unit : MonoBehaviour
     bool selected;
     public MoveTileController[] tiles;
     public MoveTileController currentSelectedMove;
+    public SpriteRenderer sprite;
+    public Animator anim;
+    public Animator hackDisplay;
+    public bool hacking;
     public int player;
     public bool moved;
 
@@ -18,6 +23,8 @@ public abstract class Unit : MonoBehaviour
     public int attackDamage;
     public int health;
     public int maxHealth;
+    public float healthBarLerpSpeed = 0.125f;
+    public RectTransform healthBar;
 
     [Header("Animation Timing")]
     public float moveTime;
@@ -26,8 +33,20 @@ public abstract class Unit : MonoBehaviour
     [Header("UI Settings")]
     public Sprite bottomLeftUI;
     public Sprite portrait;
+    public Sprite bottomLeftUISelected;
+    public Sprite portraitSelected;
 
-
+    private void Awake()
+    {
+        // sprite = GetComponent<SpriteRenderer>();
+        // anim = GetComponent<Animator>();
+        anim.SetBool("IsPlayer", player == 0);
+        healthBar = GameObject.Find("Health Bar").GetComponent<RectTransform>();
+    }
+    private void Update()
+    {
+        if (selected) healthBar.localScale = Vector2.Lerp(healthBar.localScale, new Vector2((float)health / (float)maxHealth, 1), healthBarLerpSpeed);
+    }
     // Called by TurnManager
     public virtual void SetActive()
     {
@@ -41,16 +60,19 @@ public abstract class Unit : MonoBehaviour
             // print(i + ", " + tiles[i].moveTile);
         }
 
-        if (player == 1)
+        UpdateUnit();
+
+        if (player == 1 && !attack)
         {
             AIMove();
         }
 
-        UpdateUnit();
         if (attack)
         {
             Attack();
         }
+
+
     }
 
     public virtual void SetAsleep()
@@ -67,6 +89,10 @@ public abstract class Unit : MonoBehaviour
     public virtual void LockMove()
     {
         if (currentSelectedMove == null) return;
+
+        Transform st = sprite.transform;
+        st.localScale = new Vector2(Mathf.Abs(st.localScale.x) * Mathf.Sign(st.position.x - currentSelectedMove.transform.position.x), st.localScale.y);
+
         if (currentSelectedMove.moveTile)
         {
             Move();
@@ -75,6 +101,9 @@ public abstract class Unit : MonoBehaviour
         {
             Attack();
         }
+
+
+
     }
 
     // Switch which tiles are being shown
@@ -91,11 +120,13 @@ public abstract class Unit : MonoBehaviour
     // Called by attacks
     public virtual void OnHit(int damage)
     {
+        Debug.Log("Hit");
         health -= damage;
 
         if (health <= 0)
         {
-            Destroy(gameObject);
+            anim.SetTrigger("Dead");
+            Destroy(gameObject, 1);
         }
     }
 
@@ -136,6 +167,8 @@ public abstract class Unit : MonoBehaviour
     // Place a preset hitbox at position, check enemies in range and do damage to them
     public virtual void Attack()
     {
+
+        // if (currentSelectedMove == null) return;
         // Placing hitbox
         attackHitbox.position = currentSelectedMove.transform.position;
 
@@ -143,7 +176,7 @@ public abstract class Unit : MonoBehaviour
         for (int i = 0; i < attackHitbox.childCount; i++)
         {
             RaycastHit2D[] ray = Physics2D.RaycastAll(attackHitbox.GetChild(i).transform.position, Vector2.zero);
-
+            print(ray.Length);
             for (int j = 0; j < ray.Length; j++)
             {
                 if (ray[j].collider.tag == "Unit")
@@ -153,20 +186,25 @@ public abstract class Unit : MonoBehaviour
             }
         }
 
-
+        // Do effect
+        GameObject.FindGameObjectWithTag("Attack Feedback").GetComponent<MMFeedbacks>().PlayFeedbacks();
+        currentSelectedMove = null;
         attack = false;
     }
 
     // Called when locking move
     public virtual void Move()
     {
-        Debug.Log("Move");
         StartCoroutine(MoveRoutine());
 
     }
 
     IEnumerator MoveRoutine()
     {
+        // Set direction
+        Transform st = sprite.transform;
+        st.localScale = new Vector2(Mathf.Abs(st.localScale.x) * Mathf.Sign(st.position.x - currentSelectedMove.transform.position.x), st.localScale.y);
+
         Vector2 targetPosition = GridManager.grid.RoundToGrid(currentSelectedMove.transform.position);
 
         // Set tiles to false
@@ -186,10 +224,20 @@ public abstract class Unit : MonoBehaviour
         // Move to the tile selected's position
         transform.position = targetPosition;
 
+
         currentSelectedMove = null;
 
 
-        SetMode(false);
+        if (moved) SetMode(false);
+
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            if (!tiles[i].moveTile)
+            {
+                yield break;
+            }
+        }
+        if (player != 1) TurnManager.tm.LockMove();
     }
 
 
@@ -197,7 +245,22 @@ public abstract class Unit : MonoBehaviour
     // But ai code would go here
     public virtual void AIMove()
     {
-        currentSelectedMove = tiles[Random.Range(0, tiles.Length - 1)];
+        // Open all possible tiles
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            tiles[i].gameObject.SetActive(CheckTileValid(tiles[i]));
+        }
+
+        currentSelectedMove = null;
+        while (currentSelectedMove == null)
+        {
+            currentSelectedMove = tiles[Random.Range(0, tiles.Length - 1)];
+            if (!currentSelectedMove.gameObject.activeInHierarchy)
+            {
+                currentSelectedMove = null;
+            }
+        }
+
         TurnManager.tm.LockMove();
     }
 
