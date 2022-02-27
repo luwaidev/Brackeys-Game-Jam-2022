@@ -592,7 +592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   transition: {fileID: 1937455792}
-  sceneTransitionTime: 1
+  sceneTransitionTime: 2.25
   loaded: 0
   loadingScene: 0
   sound: {fileID: 0}

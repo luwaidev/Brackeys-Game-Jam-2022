@@ -4701,11 +4701,12 @@ MonoBehaviour:
   hacking: 0
   player: 0
   moved: 0
+  dead: 0
   attack: 0
   attackHitbox: {fileID: 0}
-  attackDamage: 2
-  health: 3
-  maxHealth: 3
+  attackDamage: 1
+  health: 4
+  maxHealth: 4
   healthBarLerpSpeed: 0.125
   healthBar: {fileID: 0}
   moveTime: 80

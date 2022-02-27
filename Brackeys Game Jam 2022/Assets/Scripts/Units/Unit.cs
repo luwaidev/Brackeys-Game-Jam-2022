@@ -15,6 +15,7 @@ public abstract class Unit : MonoBehaviour
     public bool hacking;
     public int player;
     public bool moved;
+    public bool dead;
 
     [Header("Combat Settings")]
     public bool attack;
@@ -50,13 +51,14 @@ public abstract class Unit : MonoBehaviour
     // Called by TurnManager
     public virtual void SetActive()
     {
+        if (dead) return;
         currentSelectedMove = null;
         selected = true;
         moved = false;
 
         for (int i = 0; i < tiles.Length; i++)
         {
-            tiles[i].gameObject.SetActive(tiles[i].moveTile && CheckTileValid(tiles[i]));
+            if (tiles[i] != null) tiles[i].gameObject.SetActive(tiles[i].moveTile && CheckTileValid(tiles[i]));
             // print(i + ", " + tiles[i].moveTile);
         }
 
@@ -77,6 +79,7 @@ public abstract class Unit : MonoBehaviour
 
     public virtual void SetAsleep()
     {
+        if (dead) return;
         currentSelectedMove = null;
         selected = false;
         for (int i = 0; i < tiles.Length; i++)
@@ -88,6 +91,7 @@ public abstract class Unit : MonoBehaviour
 
     public virtual void LockMove()
     {
+        if (dead) return;
         if (currentSelectedMove == null) return;
 
         Transform st = sprite.transform;
@@ -109,6 +113,7 @@ public abstract class Unit : MonoBehaviour
     // Switch which tiles are being shown
     public virtual void SetMode(bool moving)
     {
+        if (dead) return;
         // Loop through each tile, check if the tile is valid (see CheckTileValid for what that means)
         // Also check to switch to either all attacking or moving tiles
         for (int i = 0; i < tiles.Length; i++)
@@ -120,11 +125,13 @@ public abstract class Unit : MonoBehaviour
     // Called by attacks
     public virtual void OnHit(int damage)
     {
+        if (dead) return;
         Debug.Log("Hit");
         health -= damage;
 
         if (health <= 0)
         {
+            dead = true;
             anim.SetTrigger("Dead");
             Destroy(gameObject, 1);
         }
@@ -132,6 +139,7 @@ public abstract class Unit : MonoBehaviour
 
     public virtual void MoveUnit()
     {
+        if (dead) return;
         Move();
         moved = true;
         TurnManager.tm.moving = false;
@@ -146,6 +154,7 @@ public abstract class Unit : MonoBehaviour
     // Can be customized for every unit, maybe some can't fire over walls etc
     public virtual bool CheckTileValid(MoveTileController tile)
     {
+        if (dead) return false;
         RaycastHit2D[] ray = Physics2D.RaycastAll(tile.transform.position, Vector2.zero);
         for (int i = 0; i < ray.Length; i++)
         {
@@ -167,7 +176,7 @@ public abstract class Unit : MonoBehaviour
     // Place a preset hitbox at position, check enemies in range and do damage to them
     public virtual void Attack()
     {
-
+        if (dead) return;
         // if (currentSelectedMove == null) return;
         // Placing hitbox
         attackHitbox.position = currentSelectedMove.transform.position;
@@ -201,6 +210,7 @@ public abstract class Unit : MonoBehaviour
 
     IEnumerator MoveRoutine()
     {
+        if (dead) yield break;
         // Set direction
         Transform st = sprite.transform;
         st.localScale = new Vector2(Mathf.Abs(st.localScale.x) * Mathf.Sign(st.position.x - currentSelectedMove.transform.position.x), st.localScale.y);
@@ -245,6 +255,7 @@ public abstract class Unit : MonoBehaviour
     // But ai code would go here
     public virtual void AIMove()
     {
+        if (dead) return;
         // Open all possible tiles
         for (int i = 0; i < tiles.Length; i++)
         {

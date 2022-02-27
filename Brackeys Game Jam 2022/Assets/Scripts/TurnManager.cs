@@ -8,9 +8,11 @@ using TMPro;
 public class TurnManager : MonoBehaviour
 {
     public bool devBuild;
+    public GameObject enemyTurn;
     public static TurnManager tm;
     public Unit[] units;
     public int currentTurn;
+    public bool locking;
 
 
     // is an index of a unit in the units list
@@ -34,6 +36,7 @@ public class TurnManager : MonoBehaviour
     public int hackAmount;
     public bool playHackAnimation;
     public bool playHackWarning;
+
 
     // Start is called before the first frame update
     void Start()
@@ -207,11 +210,12 @@ public class TurnManager : MonoBehaviour
     {
 
         // Debug.Log("Locked Move");
-        StartCoroutine(LockCoroutine());
+        if (!locking) StartCoroutine(LockCoroutine());
     }
 
     public IEnumerator LockCoroutine()
     {
+        locking = true;
         units[currentSelectedUnit].LockMove();
         yield return new WaitForSeconds(animationTime);
         if (units[currentSelectedUnit].player == 1)
@@ -235,7 +239,9 @@ public class TurnManager : MonoBehaviour
         }
 
 
+        locking = false;
         OnNextTurn();
+
     }
 
     // Called by switch mode button
@@ -260,6 +266,10 @@ public class TurnManager : MonoBehaviour
 
         // Update turn
         turnIndicator.text = currentTurn.ToString();
+
+        // Update Enemy turn
+        enemyTurn.SetActive(units[currentSelectedUnit].player == 1);
+
     }
 
     private void EndGame()

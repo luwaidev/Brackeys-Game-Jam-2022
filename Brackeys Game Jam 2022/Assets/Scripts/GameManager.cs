@@ -37,15 +37,15 @@ public class GameManager : MonoBehaviour
         string sceneName;
         if (SceneManager.GetActiveScene().name == "Level 1")
         {
-            sceneName = "Level 2";
+            sceneName = "Level 3";
         }
-        // else if (SceneManager.GetActiveScene().name == "Level 2")
+        else if (SceneManager.GetActiveScene().name == "Level 3")
+        {
+            sceneName = "Level 4";
+        }
+        // else if (SceneManager.GetActiveScene().name == "Level 4")
         // {
-        //     sceneName = "Level 3";
-        // }
-        // else if (SceneManager.GetActiveScene().name == "Level 3")
-        // {
-        //     sceneName = "Level 4";
+        //     sceneName = "Level 5";
         // }
         else
         {
@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
         loadingScene = true;
 
         // sound.Play();
-        transition.SetTrigger("Transition"); // Start transitioning scene out
+        transition.SetTrigger("In"); // Start transitioning scene out
         yield return new WaitForSeconds(sceneTransitionTime); // Wait for transition
 
         // Start loading scene
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        transition.SetTrigger("Transition"); // Start transitioning scene back
+        transition.SetTrigger("In"); // Start transitioning scene back
 
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(sceneTransitionTime); // Wait for transition
