@@ -155,7 +155,7 @@ public class TurnManager : MonoBehaviour
 
             hackingTimer = maxHackingTime * units.Length - (Random.Range(0, 2));
         }
-        else if (hackingTimer == 1)
+        else if (hackingTimer == units.Length)
         {
             // Choose hackmans
 

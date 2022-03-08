@@ -6504,8 +6504,8 @@ MonoBehaviour:
   aiWaitTime: 3
   portrait: {fileID: 522024684}
   bottomLeftUI: {fileID: 210296554}
-  maxHackingTime: 6
-  hackingTimer: 60
+  maxHackingTime: 4
+  hackingTimer: 40
   hackIndicator: {fileID: 1507709303}
   turnIndicator: {fileID: 1329375220}
   hackAmount: 1

@@ -18,14 +18,14 @@ public class Tutorial : MonoBehaviour
             {
                 GameManager.instance.Load("Level 1");
 
+            }   else {
+                images[index].SetActive(true);
             }
 
-            images[index].SetActive(true);
         }
 
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            GameManager.instance.Load("Level 1");
+        if (Input.GetKeyDown(KeyCode.Return)){
+            GameManager.instance.LoadNext();
         }
 
     }

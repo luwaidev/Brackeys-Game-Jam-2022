@@ -44,7 +44,7 @@ public class HeadUnit : Unit
         for (int i = 0; i < units.Length; i++)
         {
 
-            if (units[i].player == 0)
+            if (units[i] != null && units[i].player == 0)
             {
                 closestPlayerUnit = (Vector2.Distance(transform.position, units[i].transform.position) <
                                      Vector2.Distance(transform.position, closestPlayerUnit)) ?
